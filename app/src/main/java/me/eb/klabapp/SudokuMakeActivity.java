@@ -2,14 +2,17 @@ package me.eb.klabapp;
 
 import android.content.DialogInterface;
 import android.os.StrictMode;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
@@ -24,8 +27,8 @@ public class SudokuMakeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sudoku_make);
 
         RelativeLayout mg = (RelativeLayout) findViewById(R.id.innerRL);
-        sg = new SudokuGrid(this);
-        sg.setEditable(true);
+        sg = new SudokuGrid(this,null);
+        //sg.setEditable(true);
 
 
         //ViewGroup.LayoutParams lparams = new ViewGroup.LayoutParams(
@@ -37,6 +40,7 @@ public class SudokuMakeActivity extends AppCompatActivity {
         //sg.setLayoutParams(lp);
 
         mg.setGravity(Gravity.CENTER_HORIZONTAL);
+        sg.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
         mg.addView(sg);
 
         //int res = getIntent().getIntExtra("res", R.raw.sudoku1);
@@ -46,9 +50,9 @@ public class SudokuMakeActivity extends AppCompatActivity {
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    sg.setPutPermanentTiles(true);
+                    //sg.setPutPermanentTiles(true);
                 } else {
-                    sg.setPutPermanentTiles(false);
+                    //sg.setPutPermanentTiles(false);
                 }
             }
         });
