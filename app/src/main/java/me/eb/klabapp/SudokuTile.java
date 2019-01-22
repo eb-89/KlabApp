@@ -1,16 +1,9 @@
 package me.eb.klabapp;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.support.annotation.Nullable;
-import android.util.AttributeSet;
-import android.view.View;
-import android.widget.ImageView;
 
 /**
  * Created by Erik on 2017-09-20.
@@ -59,8 +52,12 @@ public class SudokuTile  {
         }
     }
 
-    public void showBoundingBox(boolean b) {
-        showBox = b;
+    public void hideBoundingBox() {
+        showBox = false;
+    }
+
+    public void showBoundingBox() {
+        showBox = true;
     }
 
     public boolean isTouchable() { return isTouchable;}

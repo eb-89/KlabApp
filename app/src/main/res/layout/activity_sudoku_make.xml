@@ -17,7 +17,7 @@
         />
     -->
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/gameImageView"
         android:scaleType="fitXY"
         android:layout_width="250dp"
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:text="Save"
             android:gravity="start"
-            android:onClick = "saveSudoku"/>
+            android:onClick = "resetBoard"/>
 
         <!--  OLD
         <Button

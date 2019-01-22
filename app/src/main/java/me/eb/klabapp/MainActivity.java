@@ -2,14 +2,13 @@ package me.eb.klabapp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
-import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(myIntent);
     }
     public void gotoSudokuMake(View v) {
-        Intent myIntent = new Intent(this, SudokuMakeActivity.class);
+        Intent myIntent = new Intent(this, SudokuSelectActivity.class);
         startActivity(myIntent);
     }
 
@@ -57,17 +56,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteAllSudokus() {
-
-
-        File dir = getFilesDir();
-        File[] files = dir.listFiles();
-
-
-        for (File f : files) {
-            //if (f.getName().equals(""))
-                f.delete();
-
-        }
+        //Stub
 
     }
 

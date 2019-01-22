@@ -46,195 +46,40 @@ public class SudokuGrid extends SurfaceView {
     private int tileWidth; // Set onSurfaceCreated in the holder.
     private int tileHeight;
 
-    //Controls the spread of blox
-    private int ZOOM = 8; //In pixels;
+    //Controls the spread of blocks
+    private int ZOOM = 10; //In pixels;
+    private int PADDING = 10; //In pixels;
 
-    //Garbage
-    Bitmap[] tileGraphics = new Bitmap[9];
-    Bitmap[][] sudokuImages = new Bitmap[9][9];
-    int [][][] positionMtx = new int[9][9][2];
-    int [][] sudokuData = new int[9][9];
-    int [][] fixedTilesMask = new int[9][9];
-    private boolean editable = false;
-    private boolean putPermanentTiles = false;
 
-    int [][] testData1 = {
-            {1,2,4,3,4,6,7,8,9},
-            {1,2,5,3,4,9,7,8,8},
-            {1,2,1,3,4,1,0,8,9},
-            {1,0,2,3,4,7,7,6,9},
-            {5,2,1,3,4,7,7,8,9},
-            {1,2,1,3,4,2,0,8,8},
-            {6,2,1,0,4,0,7,0,9},
-            {1,2,0,3,4,5,7,8,9},
-            {1,2,1,3,4,4,7,8,9}};
-
-    int [][] testMask1 = {
-            {1,0,0,0,0,0,0,0,0},
-            {1,0,0,0,0,0,0,0,0},
-            {1,0,0,1,0,0,0,0,0},
-            {1,0,0,0,0,0,0,1,0},
-            {1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,1,0,0,0},
-            {1,0,0,0,0,0,0,0,0},
-            {1,0,0,0,1,0,0,0,0},
-            {1,0,0,0,0,0,0,0,0}};
-
-    int [][] testData2 = {
-            {5,3,7,2,8,0,0,0,0},
-            {0,0,0,0,3,9,7,4,2},
-            {2,0,4,0,0,1,5,3,0},
-            {0,1,5,0,7,0,8,0,9},
-            {3,8,0,9,0,0,0,7,1},
-            {0,0,9,1,4,8,3,0,0},
-            {0,0,0,4,1,0,9,8,3},
-            {9,4,3,8,0,2,0,0,0},
-            {1,0,8,0,0,6,0,5,4}};
-
-    int [][] testMask2 = {
-            {1,1,1,1,1,0,0,0,0},
-            {0,0,0,0,1,1,1,1,1},
-            {1,0,1,0,0,1,1,1,0},
-            {0,1,1,0,1,0,1,0,1},
-            {1,1,0,1,0,0,0,1,1},
-            {0,0,1,1,1,1,1,0,0},
-            {0,0,0,1,1,0,1,1,1},
-            {1,1,1,1,0,1,0,0,0},
-            {1,0,1,0,0,1,0,1,1}};
-
+    //Wanted by tools;
+    public SudokuGrid(Context context) {
+        super(context);
+    }
 
     public SudokuGrid(Context context, SudokuDigitSelector s) {
         super(context);
-        digitSelector = s;
+        this.currentPuzzle = new SudokuPuzzle();
+        this.digitSelector = s;
         init();
-
+    }
+    public SudokuGrid(Context context, SudokuDigitSelector s, SudokuPuzzle p) {
+        super(context);
+        this.currentPuzzle = p;
+        this.digitSelector = s;
+        init();
     }
 
-    public void resetSudoku() {
-        tiles = createTiles(currentPuzzle);
+    public void setSudoku(SudokuPuzzle p) {
+        tiles = createTiles(p);
         invalidate();
     }
 
-    //probably garbage
-
-    public void writeToBinaryFile(String name) {
-
-        String filename = name;
-        byte[] databytes = new byte[81];
-        byte[] maskbytes = new byte[81];
-
-        try {
-            FileOutputStream fos = getContext().openFileOutput(filename, Context.MODE_PRIVATE);
-
-            for (int i = 0; i < sudokuData.length; i++) {
-                for (int j = 0; j < sudokuData.length; j++) {
-                    databytes[(9*i + j)] = (byte) sudokuData[i][j];
-                }
-            }
-
-            for (int i = 0; i < sudokuData.length; i++) {
-                for (int j = 0; j < sudokuData.length; j++) {
-                    maskbytes[(9*i + j)] = (byte) fixedTilesMask[i][j];
-                }
-            }
-
-            fos.write(databytes);
-            fos.write(maskbytes);
-            fos.close();
-
-        } catch (Exception e) {}
-
-        Toast.makeText(getContext(), "Saved", Toast.LENGTH_LONG).show();
-    }
-    public void readFromBinaryFile(String name) {
-
-        String filename = name;
-        byte[] bytes = new byte[81];
-
-        File dir = getContext().getFilesDir();
-        File[] files = dir.listFiles();
-
-        try {
-            FileInputStream fis = getContext().openFileInput(filename);
-
-            for (int i = 0; i < sudokuData.length; i++) {
-                for (int j = 0; j < sudokuData.length; j++) {
-                    sudokuData[i][j] = fis.read();
-
-                }
-            }
-
-            for (int i = 0; i < sudokuData.length; i++) {
-                for (int j = 0; j < sudokuData.length; j++) {
-                    fixedTilesMask[i][j] = fis.read();
-
-                }
-            }
-
-            fis.close();
-
-        } catch (Exception e) {}
-
-        //initParams();
-        //getTiles();
-        //setPositionMtx();
-        //showConflictingTiles();
-        invalidate();
-    }
-
-
-
-    //Garbage
-    private ArrayList<SudokuTile> getConflictingTiles(int i, int j) {
-
-        int number = sudokuData[i][j];
-        ArrayList<SudokuTile> l = new ArrayList<SudokuTile>();
-        //l.add(tiles[i][j]);
-
-        for (int k = 0; k < sudokuData.length; k++) {
-            if (sudokuData[i][k] == number && k != j) {
-                //tiles[i][k].setColor(Color.BLACK);
-                //l.add(tiles[i][k]);
-            }
-        }
-
-        for (int k = 0; k < sudokuData.length; k++) {
-            if (sudokuData[k][j] == number && k != i) {
-                //tiles[k][j].setColor(Color.BLACK);
-                //l.add(tiles[k][j]);
-            }
-        }
-
-        for (int h = 0 ; h < 3 ; h++  ) {
-            for (int p = 0; p < 3; p++  ) {
-
-                int a = (i/3)*3 + h;
-                int b = (j/3)*3 + p;
-
-                //if (tiles[a][b] != null && sudokuData[a][b] == number ) {
-                //    l.add(tiles[a][b]);
-                //}
-            }
-        }
-
-
-        return l;
-
-
-    }
-
-
-
-    //Working
-
-    private void setTileDimensions() {
-        tileWidth = this.getWidth()/ 9 - ZOOM;
-        tileHeight = this.getHeight()/ 9 - ZOOM;
+    public SudokuPuzzle getSudoku() {
+        return currentPuzzle;
     }
 
     private void init() {
 
-        currentPuzzle = new SudokuPuzzle();
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
 
@@ -267,7 +112,9 @@ public class SudokuGrid extends SurfaceView {
                     for (SudokuTile s : tiles) {
                         if (s.getRect().contains(x, y) && s.isTouchable() ) {
                             SudokuTile ss = digitSelector.getSelectedTile();
+                            s.setColor(Color.BLUE);
                             s.setBitmap(ss.getBitmap());
+
                         }
                     }
                 }
@@ -283,6 +130,11 @@ public class SudokuGrid extends SurfaceView {
         });
     }
 
+    private void setTileDimensions() {
+        tileWidth = this.getWidth()/ 9 - ZOOM;
+        tileHeight = this.getHeight()/ 9 - ZOOM;
+    }
+
     private List<Bitmap> loadImages() {
         List<Bitmap> list = new ArrayList<>();
 
@@ -296,21 +148,8 @@ public class SudokuGrid extends SurfaceView {
         return list;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return true;
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
-
     private List<SudokuTile> createTiles(SudokuPuzzle puzzle) {
 
-        //tileWidth = this.getWidth()/ 9;
-        //tileHeight = this.getHeight()/ 9;
         List<SudokuTile> list = new ArrayList<>();
 
         for (int i=0; i < 9; i++) {
@@ -340,17 +179,29 @@ public class SudokuGrid extends SurfaceView {
                     If the digit is 0, the tile is open
                  */
                 if (d == 0) {
-                    s = new SudokuTile(xCoord, yCoord, xCoord + tileWidth, yCoord + tileHeight, images.get(d), true);
-
-                } else {
-                    s = new SudokuTile(xCoord, yCoord, xCoord + tileWidth, yCoord + tileHeight, images.get(d), false);
+                    s = new SudokuTile(xCoord, yCoord, xCoord + tileWidth - PADDING, yCoord + tileHeight - PADDING, images.get(d), true);
                     s.setColor(Color.DKGRAY);
-                    s.showBoundingBox(true);
+                    s.showBoundingBox();
+                } else {
+                    s = new SudokuTile(xCoord, yCoord, xCoord + tileWidth - PADDING, yCoord + tileHeight - PADDING, images.get(d), false);
+                    s.setColor(Color.YELLOW);
+                    s.showBoundingBox();
                 }
                 list.add(s);
             }
         }
         return list;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return true;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     private void drawGrid(Canvas canvas) {

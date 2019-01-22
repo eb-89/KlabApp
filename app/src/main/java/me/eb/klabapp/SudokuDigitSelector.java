@@ -73,9 +73,9 @@ public class SudokuDigitSelector extends SurfaceView {
 
                 isActive = false;
                 for (SudokuTile s : tiles) {
-                    s.showBoundingBox(false);
+                    s.hideBoundingBox();
                     if (s.getRect().contains(x,y)) {
-                            s.showBoundingBox(true);
+                            s.showBoundingBox();
                             isActive = true;
                             selectedTile = s;
                         }
@@ -92,8 +92,6 @@ public class SudokuDigitSelector extends SurfaceView {
             }
         });
     }
-
-
 
     private List<Bitmap> loadImages() {
         List<Bitmap> list = new ArrayList<>();
