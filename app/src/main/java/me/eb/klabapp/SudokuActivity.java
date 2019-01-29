@@ -1,7 +1,11 @@
 package me.eb.klabapp;
 
 
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -10,7 +14,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
-import me.eb.klabapp.roombase.GetAllTask;
+import me.eb.klabapp.roombase.Puzzle;
 import me.eb.klabapp.roombase.Sdb;
 
 
@@ -20,7 +24,8 @@ public class SudokuActivity extends AppCompatActivity {
     SudokuGrid sg;
     SudokuDigitSelector sds;
     Sdb sdb;
-    GetAllTask gt;
+    Puzzle sudokuParcel;
+    Intent intent;
 
 
     @Override
@@ -32,12 +37,22 @@ public class SudokuActivity extends AppCompatActivity {
         ConstraintLayout screen = (ConstraintLayout) findViewById(R.id.screenView);
         ConstraintSet cs = new ConstraintSet();
 
+        /* Now done in XML.
+
+        Resources res = KlabApp.getContext().getResources();
+        int resId = res.getIdentifier("background", "drawable", "me.eb.klabapp");
+        Drawable d = res.getDrawable(resId, KlabApp.getContext().getTheme());
+        screen.setBackground(d);
+
+        */
         //Image view and buttons
         ImageView img = (ImageView) findViewById(R.id.gameImageView);
         LinearLayout buttons = (LinearLayout) findViewById(R.id.buttonLayout);
 
         //Grid and selector and puzzle
-        activePuzzle = new SudokuPuzzle();
+        intent = getIntent();
+        Puzzle p = intent.getParcelableExtra("sudokuParcel");
+        activePuzzle = new SudokuPuzzle(p);
         sds = new SudokuDigitSelector(this);
         sg = new SudokuGrid(this, sds, activePuzzle);
 
@@ -68,25 +83,17 @@ public class SudokuActivity extends AppCompatActivity {
 
         cs.applyTo(screen);
 
-        getFromDB();
+
 
     }
 
-    private void getFromDB() {
-        sdb = Room.databaseBuilder(getApplicationContext(),
-                Sdb.class, "sudokudb").build();
-        gt = new GetAllTask(sdb);
-        gt.execute();
-        sdb.close();
-    }
 
     public void resetBoard(View v) {
         sg.setSudoku(sg.getSudoku());
-        //InsertTask it = new InsertTask(sdb, testPuzzle);
     }
 
     public void getRandomBoard(View v) {
-        sg.setSudoku(new SudokuPuzzle(gt.getRandom()));
+        //sg.setSudoku(new SudokuPuzzle(gt.getRandom()));
     }
 
 }

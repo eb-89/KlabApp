@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -111,12 +112,20 @@ public class SudokuDigitSelector extends SurfaceView {
     public List<SudokuTile> createTiles() {
         List<SudokuTile> list = new ArrayList<>();
 
-        for (int i = 0; i<10; i++) {
-            int xCoord = i*this.getWidth()/10;
 
-            SudokuTile s = new SudokuTile(xCoord,0, xCoord+tileWidth, tileHeight, images.get(i), false);
-            s.setColor(Color.BLUE);
+        for (int i = 0; i<10; i++) {
+
+            int PADDING = 10;
+
+            int xCoord = i*this.getWidth()/10;
+            int yCoord = 0;
+            xCoord += PADDING/2;
+            yCoord += PADDING/2;
+            SudokuTile s = new SudokuTile(xCoord, yCoord, xCoord+tileWidth - PADDING, yCoord + tileHeight - PADDING, images.get(i), false);
+            s.setColor(Color.RED);
+            s.showBoundingBox();
             list.add(s);
+
         }
         return list;
     }

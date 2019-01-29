@@ -48,7 +48,7 @@ public class SudokuGrid extends SurfaceView {
 
     //Controls the spread of blocks
     private int ZOOM = 10; //In pixels;
-    private int PADDING = 10; //In pixels;
+    private int PADDING = 20; //In pixels;
 
 
     //Wanted by tools;
@@ -70,6 +70,7 @@ public class SudokuGrid extends SurfaceView {
     }
 
     public void setSudoku(SudokuPuzzle p) {
+        currentPuzzle = p;
         tiles = createTiles(p);
         invalidate();
     }
@@ -110,8 +111,9 @@ public class SudokuGrid extends SurfaceView {
 
                 if (digitSelector.isActive()) {
                     for (SudokuTile s : tiles) {
-                        if (s.getRect().contains(x, y) && s.isTouchable() ) {
+                        if (s.getRect().contains(x, y) && s.isClickable() ) {
                             SudokuTile ss = digitSelector.getSelectedTile();
+                            //ss.getValue();
                             s.setColor(Color.BLUE);
                             s.setBitmap(ss.getBitmap());
 
@@ -140,7 +142,7 @@ public class SudokuGrid extends SurfaceView {
 
         list.add(Bitmap.createBitmap(tileWidth, tileHeight, Bitmap.Config.ARGB_8888));
         for (int i = 1; i <=9 ; i++) {
-            int resId = getResources().getIdentifier("number_" + i, "drawable", "me.eb.klabapp");
+            int resId = KlabApp.getContext().getResources().getIdentifier("number_" + i, "drawable", "me.eb.klabapp");
             Bitmap b = BitmapFactory.decodeResource(getResources(), resId);
             b = Bitmap.createScaledBitmap(b, tileWidth, tileHeight, false);
             list.add(b);
@@ -172,7 +174,8 @@ public class SudokuGrid extends SurfaceView {
 
                 int xCoord = xPos + (j%3)*(tileWidth);
                 int yCoord = yPos + (i%3)*(tileHeight);
-
+                xCoord += PADDING/2;
+                yCoord += PADDING/2;
                 int d = puzzle.getDigit(i,j);
                 SudokuTile s;
                 /*

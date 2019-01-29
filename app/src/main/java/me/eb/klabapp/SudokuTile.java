@@ -1,9 +1,12 @@
 package me.eb.klabapp;
 
+import android.app.Application;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 
 /**
  * Created by Erik on 2017-09-20.
@@ -12,17 +15,20 @@ import android.graphics.Rect;
 public class SudokuTile  {
 
 
+
     private Paint paintBrush = new Paint();
     private Bitmap bitmap;
     private Rect boundingRect;
     private boolean showBox;
-    private boolean isTouchable;
+    private boolean isClickable;
+    private int value;
 
 
-    public SudokuTile(int x, int y, int w, int h, Bitmap bmp, boolean f) {
+    public SudokuTile(int x, int y, int w, int h, Bitmap bmp, boolean isClickable) {
         this.boundingRect = new Rect(x,y,w,h);
         this.bitmap = bmp;
-        this.isTouchable = f;
+        this.isClickable = isClickable;
+
     }
 
     public int getColor() {
@@ -32,7 +38,7 @@ public class SudokuTile  {
         paintBrush.setColor(color);
     }
 
-    public Rect getRect() { return boundingRect; }
+    public Rect getRect() { return boundingRect;  }
 
     public void setBitmap(Bitmap bmp) {
         bitmap = bmp;
@@ -60,7 +66,7 @@ public class SudokuTile  {
         showBox = true;
     }
 
-    public boolean isTouchable() { return isTouchable;}
+    public boolean isClickable() { return isClickable;}
 
 
 }

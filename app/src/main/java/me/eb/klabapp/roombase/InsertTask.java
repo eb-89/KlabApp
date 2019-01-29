@@ -22,7 +22,7 @@ public class InsertTask extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... v) {
 
         PuzzleDao pdao = sdb.puzzleDao();
-        pdao.insert(new Puzzle(instring) );
+        //pdao.insert(new Puzzle(instring) );
         Log.d("PuzzleLog:  ", "Added: " + instring);
 
         return null;

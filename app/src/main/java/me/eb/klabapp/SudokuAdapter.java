@@ -7,17 +7,21 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.util.List;
 
-public class SudokuAdapter extends ArrayAdapter<String> {
+import me.eb.klabapp.roombase.Puzzle;
 
-    public SudokuAdapter(Context context, String[] names) {
-        super(context, 0, names);
+
+public class SudokuAdapter extends ArrayAdapter<Puzzle> {
+
+    public SudokuAdapter(Context context, List<Puzzle> puzzles) {
+        super(context, 0, puzzles);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        String s = getItem(position);
+        String s = getItem(position).publicName;
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_element, parent, false);
