@@ -6,6 +6,8 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,6 +28,7 @@ public class SudokuActivity extends AppCompatActivity {
     Sdb sdb;
     Puzzle sudokuParcel;
     Intent intent;
+    SudokuController sController;
 
 
     @Override
@@ -83,6 +86,7 @@ public class SudokuActivity extends AppCompatActivity {
 
         cs.applyTo(screen);
 
+        sController = new SudokuController(sg, activePuzzle, sds);
 
 
     }
@@ -92,8 +96,23 @@ public class SudokuActivity extends AppCompatActivity {
         sg.setSudoku(sg.getSudoku());
     }
 
+
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+//        sController.handleTouchEvent(event);
+        return true;
+    }
+
     public void getRandomBoard(View v) {
         //sg.setSudoku(new SudokuPuzzle(gt.getRandom()));
+    }
+
+    //TODO: save the chosen model, original, and save active model, current. No need to update the model with origs.
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+
     }
 
 }

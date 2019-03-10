@@ -8,6 +8,8 @@ import me.eb.klabapp.roombase.Puzzle;
 
 public class SudokuPuzzle {
 
+    private int[][] originalPuzzle = new int[9][9];
+
     private int[][] puzzle =  {
         {5,3,7,2,8,0,0,0,0},
         {0,0,0,0,3,9,7,4,2},
@@ -24,17 +26,23 @@ public class SudokuPuzzle {
 
     public SudokuPuzzle(int[][] p) {
         puzzle = p;
+        originalPuzzle = p;
     }
 
     public SudokuPuzzle(Puzzle p) {
         char[] chars = p.data.toCharArray();
         for (int i = 0; i<81;i++ ) {
             puzzle[i/9][i%9] = Character.getNumericValue(chars[i]);
+            originalPuzzle[i/9][i%9] = Character.getNumericValue(chars[i]);
         }
     }
 
     public int getDigit(int x, int y) {
         return puzzle[x][y];
+    }
+
+    public void setDigit(int x, int y, int digit) {
+        puzzle[x][y] = digit;
     }
 
     public String asString() {

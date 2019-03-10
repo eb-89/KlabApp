@@ -14,7 +14,8 @@ import android.graphics.drawable.Drawable;
 
 public class SudokuTile  {
 
-
+    private int boardX = 0;
+    private int boardY = 0;
 
     private Paint paintBrush = new Paint();
     private Bitmap bitmap;
@@ -22,17 +23,27 @@ public class SudokuTile  {
     private boolean showBox;
     private boolean isClickable;
     private int value;
+    private int borderfatness;
 
 
-    public SudokuTile(int x, int y, int w, int h, Bitmap bmp, boolean isClickable) {
-        this.boundingRect = new Rect(x,y,w,h);
+    public SudokuTile(Rect r, int value, Bitmap bmp, boolean isClickable) {
+        this.boundingRect = r;
         this.bitmap = bmp;
         this.isClickable = isClickable;
-
+        this.value = value;
     }
 
-    public int getColor() {
-        return paintBrush.getColor();
+    public void setValue(int val) {
+        value = val;
+    }
+
+    public void setBoardXY(int x, int y) {
+        boardX = x;
+        boardY = y;
+    }
+
+    public int getValue() {
+        return value;
     }
     public void setColor(int color) {
         paintBrush.setColor(color);
@@ -49,12 +60,18 @@ public class SudokuTile  {
     }
 
     public void draw(Canvas canvas) {
-        paintBrush.setStrokeWidth(10);
+
+        borderfatness = 8;
+        paintBrush.setStrokeWidth(borderfatness);
         paintBrush.setStyle(Paint.Style.STROKE);
         canvas.drawBitmap(bitmap, null, boundingRect, paintBrush);
 
         if (showBox) {
-            canvas.drawRect(boundingRect, paintBrush);
+            canvas.drawRect(new Rect(
+                    boundingRect.left + borderfatness/2,
+                    boundingRect.top + borderfatness/2 ,
+                    boundingRect.right -borderfatness/2,
+                    boundingRect.bottom -borderfatness/2), paintBrush);
         }
     }
 
@@ -69,4 +86,11 @@ public class SudokuTile  {
     public boolean isClickable() { return isClickable;}
 
 
+    public int getBoardX() {
+        return boardX;
+    }
+
+    public int getBoardY() {
+        return boardY;
+    }
 }

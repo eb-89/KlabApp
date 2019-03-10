@@ -47,8 +47,8 @@ public class SudokuGrid extends SurfaceView {
     private int tileHeight;
 
     //Controls the spread of blocks
-    private int ZOOM = 10; //In pixels;
-    private int PADDING = 20; //In pixels;
+    private int ZOOM = 8; //In pixels;
+    private int PADDING = 25; //In pixels;
 
 
     //Wanted by tools;
@@ -69,10 +69,29 @@ public class SudokuGrid extends SurfaceView {
         init();
     }
 
+    public void updateGrid() {
+        Log.i("Grid:","  Invalidating...");
+        invalidate();
+    }
+
     public void setSudoku(SudokuPuzzle p) {
         currentPuzzle = p;
         tiles = createTiles(p);
         invalidate();
+    }
+
+    public SudokuDigit getSudokuDigit(int x, int y) {
+        SudokuDigit out = null;
+        for (SudokuTile s : tiles) {
+            if (s.getRect().contains(x, y)) {
+//                SudokuTile ss = digitSelector.getSelectedTile();
+//                //ss.getValue();
+//                s.setColor(Color.BLUE);
+//                s.setBitmap(ss.getBitmap());
+                out = new SudokuDigit(s.getBoardX(), s.getBoardY(),s.getValue());
+            }
+        }
+        return out;
     }
 
     public SudokuPuzzle getSudoku() {
@@ -81,6 +100,7 @@ public class SudokuGrid extends SurfaceView {
 
     private void init() {
 
+        //sController = new SudokuController(sudokuGrid, currentPuzzle);
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
 
@@ -108,6 +128,7 @@ public class SudokuGrid extends SurfaceView {
 
                 int x = (int)e.getX();
                 int y = (int)e.getY();
+                Log.i("Grid says:  ", "x: " + x + "  y: " + y);
 
                 if (digitSelector.isActive()) {
                     for (SudokuTile s : tiles) {
@@ -116,6 +137,9 @@ public class SudokuGrid extends SurfaceView {
                             //ss.getValue();
                             s.setColor(Color.BLUE);
                             s.setBitmap(ss.getBitmap());
+
+
+                            currentPuzzle.setDigit(s.getBoardX(), s.getBoardY(), ss.getValue());
 
                         }
                     }
@@ -176,19 +200,27 @@ public class SudokuGrid extends SurfaceView {
                 int yCoord = yPos + (i%3)*(tileHeight);
                 xCoord += PADDING/2;
                 yCoord += PADDING/2;
+
+
+                Rect rect = new Rect(
+                        xCoord,
+                        yCoord,
+                        xCoord+tileWidth - PADDING,
+                        yCoord + tileHeight - PADDING);
+
+                //If the digit is 0, the tile is open
                 int d = puzzle.getDigit(i,j);
                 SudokuTile s;
-                /*
-                    If the digit is 0, the tile is open
-                 */
                 if (d == 0) {
-                    s = new SudokuTile(xCoord, yCoord, xCoord + tileWidth - PADDING, yCoord + tileHeight - PADDING, images.get(d), true);
+                    s = new SudokuTile(rect, d, images.get(d), true);
                     s.setColor(Color.DKGRAY);
                     s.showBoundingBox();
+                    s.setBoardXY(i,j);
                 } else {
-                    s = new SudokuTile(xCoord, yCoord, xCoord + tileWidth - PADDING, yCoord + tileHeight - PADDING, images.get(d), false);
+                    s = new SudokuTile(rect, d, images.get(d), false);
                     s.setColor(Color.YELLOW);
                     s.showBoundingBox();
+                    s.setBoardXY(i,j);
                 }
                 list.add(s);
             }
@@ -196,9 +228,11 @@ public class SudokuGrid extends SurfaceView {
         return list;
     }
 
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
+//        gestureDetector.onTouchEvent(event);
+        Log.i("Grid says:  ", "Saw  at " + event.getX() + " and " + event.getY() +  " event but didnt consume");
         return true;
     }
 
@@ -208,9 +242,15 @@ public class SudokuGrid extends SurfaceView {
     }
 
     private void drawGrid(Canvas canvas) {
+                Log.i("Grid:","  Invalidating...");
+
                 for (SudokuTile s : tiles) {
+                    int td = currentPuzzle.getDigit(s.getBoardX(),s.getBoardY());
+                    //Ths is working
+                    s.setBitmap(images.get(td));
                     s.draw(canvas);
                 }
+                Log.i("Grid: ", "Digits: " + currentPuzzle.getDigit(0,0) + " " +currentPuzzle.getDigit(1,0) + " " + currentPuzzle.getDigit(2,0));
     }
 
     @Override
@@ -219,5 +259,10 @@ public class SudokuGrid extends SurfaceView {
         super.onDraw(canvas);
         drawGrid(canvas);
 
+    }
+
+    @Override
+    public boolean performClick() {
+        return super.performClick();
     }
 }

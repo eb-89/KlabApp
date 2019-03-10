@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -34,6 +35,19 @@ public class SudokuDigitSelector extends SurfaceView {
     public SudokuDigitSelector(Context context) {
         super(context);
         init();
+    }
+
+    public SudokuDigit getSudokuDigit(int x, int y) {
+        for (SudokuTile s : tiles) {
+            if (s.getRect().contains(x,y)) {
+                return new SudokuDigit(s.getValue());
+            }
+        }
+        return null;
+    }
+
+    public void updateSelector() {
+        invalidate();
     }
 
     public SudokuTile getSelectedTile() {
@@ -94,6 +108,15 @@ public class SudokuDigitSelector extends SurfaceView {
         });
     }
 
+    public void setSelected(int val) {
+
+        for (SudokuTile t : tiles) {
+            t.hideBoundingBox();
+        }
+
+        tiles.get(val).showBoundingBox();
+    }
+
     private List<Bitmap> loadImages() {
         List<Bitmap> list = new ArrayList<>();
         tileWidth = getWidth()/10;
@@ -119,11 +142,13 @@ public class SudokuDigitSelector extends SurfaceView {
 
             int xCoord = i*this.getWidth()/10;
             int yCoord = 0;
-            xCoord += PADDING/2;
-            yCoord += PADDING/2;
-            SudokuTile s = new SudokuTile(xCoord, yCoord, xCoord+tileWidth - PADDING, yCoord + tileHeight - PADDING, images.get(i), false);
+
+            Rect rect = new Rect(xCoord, yCoord, xCoord+tileWidth, yCoord + tileHeight);
+//            xCoord += PADDING/2;
+//            yCoord += PADDING/2;
+            SudokuTile s = new SudokuTile(rect, i, images.get(i), false);
             s.setColor(Color.RED);
-            s.showBoundingBox();
+//            s.showBoundingBox();
             list.add(s);
 
         }
