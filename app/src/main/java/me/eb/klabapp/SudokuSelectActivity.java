@@ -45,6 +45,8 @@ public class SudokuSelectActivity extends AppCompatActivity implements TaskRespo
         gt = new AccessDBTask(sdb, this);
         gt.execute();
 
+
+
     }
 
 
@@ -72,12 +74,15 @@ public class SudokuSelectActivity extends AppCompatActivity implements TaskRespo
             }
         });
         Log.i("RoomDB: ", "ProcessFinished");
+        sdb.close();
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        sdb.close();
+
+
     }
 
 

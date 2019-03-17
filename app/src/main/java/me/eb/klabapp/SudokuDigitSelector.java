@@ -25,10 +25,7 @@ public class SudokuDigitSelector extends SurfaceView {
     private int tileWidth;
     private int tileHeight;
     private SurfaceHolder surfaceHolder;
-    private GestureDetector gestureDetector;
     private List<Bitmap> images;
-    private SudokuTile selectedTile;
-    private boolean isActive;
 
     List<SudokuTile> tiles;
 
@@ -37,26 +34,34 @@ public class SudokuDigitSelector extends SurfaceView {
         init();
     }
 
+    public void setHighlight(SudokuDigit s, boolean b) {
+
+        resetHighlight();
+
+        SudokuTile t = tiles.get(s.val);
+        t.setHighlight(b);
+    }
+
+    public void resetHighlight() {
+        for (SudokuTile t : tiles) {
+            t.setHighlight(false);
+        }
+    }
+
     public SudokuDigit getSudokuDigit(int x, int y) {
+        SudokuDigit out = null;
         for (SudokuTile s : tiles) {
             if (s.getRect().contains(x,y)) {
-                return new SudokuDigit(s.getValue());
+                out = s.getDigit();
             }
         }
-        return null;
+        return out;
     }
 
     public void updateSelector() {
         invalidate();
     }
 
-    public SudokuTile getSelectedTile() {
-        return selectedTile;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
 
     private void init() {
 
@@ -69,8 +74,9 @@ public class SudokuDigitSelector extends SurfaceView {
 
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                images = loadImages();
                 setWillNotDraw(false);
+
+                images = loadImages();
                 tiles = createTiles(); //calls getHeight() and with() of this view
             }
 
@@ -79,43 +85,8 @@ public class SudokuDigitSelector extends SurfaceView {
             }
         });
 
-        gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
-
-            public boolean onSingleTapUp(MotionEvent e) {
-
-                int x = (int)e.getX();
-                int y = (int)e.getY();
-
-                isActive = false;
-                for (SudokuTile s : tiles) {
-                    s.hideBoundingBox();
-                    if (s.getRect().contains(x,y)) {
-                            s.showBoundingBox();
-                            isActive = true;
-                            selectedTile = s;
-                        }
-                    }
-
-                invalidate();
-                return true;
-            }
-
-            public void onLongPress(MotionEvent e) {
-                int x = (int)e.getX();
-                int y = (int)e.getY();
-                invalidate();
-            }
-        });
     }
 
-    public void setSelected(int val) {
-
-        for (SudokuTile t : tiles) {
-            t.hideBoundingBox();
-        }
-
-        tiles.get(val).showBoundingBox();
-    }
 
     private List<Bitmap> loadImages() {
         List<Bitmap> list = new ArrayList<>();
@@ -135,20 +106,13 @@ public class SudokuDigitSelector extends SurfaceView {
     public List<SudokuTile> createTiles() {
         List<SudokuTile> list = new ArrayList<>();
 
-
         for (int i = 0; i<10; i++) {
-
-            int PADDING = 10;
 
             int xCoord = i*this.getWidth()/10;
             int yCoord = 0;
 
             Rect rect = new Rect(xCoord, yCoord, xCoord+tileWidth, yCoord + tileHeight);
-//            xCoord += PADDING/2;
-//            yCoord += PADDING/2;
-            SudokuTile s = new SudokuTile(rect, i, images.get(i), false);
-            s.setColor(Color.RED);
-//            s.showBoundingBox();
+            SudokuTile s = new SudokuTile(new SudokuDigit(i), rect, images.get(i));
             list.add(s);
 
         }
@@ -161,11 +125,6 @@ public class SudokuDigitSelector extends SurfaceView {
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return true;
-    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -173,6 +132,11 @@ public class SudokuDigitSelector extends SurfaceView {
         super.onDraw(canvas);
         drawSelector(canvas);
 
+    }
+
+    @Override
+    public boolean performClick() {
+        return super.performClick();
     }
 
 }

@@ -8,21 +8,28 @@ import android.view.MotionEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View;
+import android.widget.Toast;
 
 public class SudokuController {
 
     private SudokuGrid view;
     private SudokuDigitSelector selector;
     private SudokuPuzzle model;
+    private SudokuDigit selectorSelectedDigit;
+    private SudokuDigit gridSelectedDigit;
+    private boolean gridFirst;
 
 
-    GestureDetector viewGd;
-    GestureDetector selectorGd;
+    private GestureDetector viewGd;
+    private GestureDetector selectorGd;
 
     public SudokuController(SudokuGrid inview, SudokuPuzzle inmodel, SudokuDigitSelector inselector) {
         this.view = inview;
         this.model = inmodel;
         this.selector = inselector;
+        this.gridFirst = true;
+
+        view.setInitSudoku(model);
 
         viewGd = new GestureDetector(view.getContext(), new GestureDetector.SimpleOnGestureListener() {
 
@@ -31,18 +38,20 @@ public class SudokuController {
                 int x = (int)e.getX();
                 int y = (int)e.getY();
 
-                SudokuDigit s = view.getSudokuDigit(x,y);
-//                model.setDigit(s.x,s.y,s.val);
-                model.setDigit(0,0,1);
-                model.setDigit(1,0,2);
-                model.setDigit(2,0,3);
+                gridSelectedDigit = view.getSudokuDigit(x,y);
 
-                Log.i("ControllerGridGest: ", "Digits: " + model.getDigit(0,0) + " " + model.getDigit(1,0) + " " + model.getDigit(2,0));
+                if (gridFirst) {
+                    if (gridSelectedDigit != null && model.isChangeable(gridSelectedDigit) ) {
+                        view.setHighlight(gridSelectedDigit, true);
+                    }
+                } else if (gridSelectedDigit!=null && selectorSelectedDigit != null  && model.isChangeable(gridSelectedDigit)) {
+                    model.setDigit(gridSelectedDigit.x, gridSelectedDigit.y, selectorSelectedDigit.val);
+                    selector.setHighlight(selectorSelectedDigit,false );
+                    selectorSelectedDigit = null;
+                }
 
                 view.updateGrid();
-                if (s != null) {
-                    Log.i("ControllerGridGest: ", "Digit at " + s.x + " " + s.y + " with val: " + s.val);
-                }
+                selector.updateSelector();
                 return true;
             }
         });
@@ -54,11 +63,21 @@ public class SudokuController {
                 int x = (int)e.getX();
                 int y = (int)e.getY();
 
-                SudokuDigit s = selector.getSudokuDigit(x,y);
-                selector.setSelected(s.val);
+                selectorSelectedDigit = selector.getSudokuDigit(x,y);
+
+                if (gridFirst) {
+                    if (selectorSelectedDigit != null && gridSelectedDigit != null && model.isChangeable(gridSelectedDigit)) {
+                        model.setDigit(gridSelectedDigit.x, gridSelectedDigit.y, selectorSelectedDigit.val);
+                        view.setHighlight(gridSelectedDigit, false);
+                        gridSelectedDigit = null;
+                    }
+                } else if (selectorSelectedDigit!=null) {
+                    selector.setHighlight(selectorSelectedDigit,true );
+                }
+
+                view.updateGrid();
                 selector.updateSelector();
-                Log.i("ControllerSelectGest: ", "Tried to invalidate");
-                Log.i("ControllerSelectGest: ", "Digit with val: " +s.val);
+
                 return true;
             }
         });
@@ -67,10 +86,25 @@ public class SudokuController {
         selector.setOnTouchListener(new SudokuTouchListener(selectorGd));
     }
 
-
-    public void setDigit(int x, int y, int digit) {
-        model.setDigit(x, y, digit);
+    public void setSudoku(SudokuPuzzle p){
+        model = p;
+        view.setNewSudoku(model);
+        view.updateGrid();
+        selector.updateSelector();
     }
+
+    public void toggleGridFirst() {
+        gridFirst = !gridFirst;
+        view.resetHighlight();
+        selector.resetHighlight();
+
+        selectorSelectedDigit = null;
+        gridSelectedDigit = null;
+
+        view.updateGrid();
+        selector.updateSelector();
+    }
+
 
 
 }

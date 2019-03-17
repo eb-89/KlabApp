@@ -46,6 +46,12 @@
             android:text="Get Other Sudoku"
             android:gravity="end"
             android:onClick = "getRandomBoard"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change GridFirst"
+            android:gravity="end"
+            android:onClick = "toggleGridFirst"/>
 
     </LinearLayout>
 

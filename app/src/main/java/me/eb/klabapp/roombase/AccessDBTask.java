@@ -46,13 +46,5 @@ public class AccessDBTask extends AsyncTask<Void, Void, List<Puzzle>> {
         tr.processFinish(puzzles);
     }
 
-    public Puzzle getRandom() {
-        int len = dbpuzzles.size();
-        int idx = rand.nextInt(len);
-        return dbpuzzles.get(idx);
-    }
-    //public List<Puzzle> getAll() {
-    //    return dbpuzzles;
-    //}
 
 }

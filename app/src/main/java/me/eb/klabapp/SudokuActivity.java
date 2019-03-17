@@ -11,24 +11,32 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import java.nio.channels.SelectableChannel;
+import java.util.List;
+import java.util.Random;
+
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
+import me.eb.klabapp.roombase.AccessDBTask;
 import me.eb.klabapp.roombase.Puzzle;
 import me.eb.klabapp.roombase.Sdb;
+import me.eb.klabapp.roombase.TaskResponse;
 
 
-public class SudokuActivity extends AppCompatActivity {
+public class SudokuActivity extends AppCompatActivity implements TaskResponse {
 
-    SudokuPuzzle activePuzzle;
     SudokuGrid sg;
     SudokuDigitSelector sds;
-    Sdb sdb;
-    Puzzle sudokuParcel;
     Intent intent;
     SudokuController sController;
+    Puzzle selectedPuzzle;
+
+    Sdb sdb;
+    AccessDBTask gt;
 
 
     @Override
@@ -40,24 +48,18 @@ public class SudokuActivity extends AppCompatActivity {
         ConstraintLayout screen = (ConstraintLayout) findViewById(R.id.screenView);
         ConstraintSet cs = new ConstraintSet();
 
-        /* Now done in XML.
 
-        Resources res = KlabApp.getContext().getResources();
-        int resId = res.getIdentifier("background", "drawable", "me.eb.klabapp");
-        Drawable d = res.getDrawable(resId, KlabApp.getContext().getTheme());
-        screen.setBackground(d);
 
-        */
         //Image view and buttons
         ImageView img = (ImageView) findViewById(R.id.gameImageView);
         LinearLayout buttons = (LinearLayout) findViewById(R.id.buttonLayout);
 
         //Grid and selector and puzzle
         intent = getIntent();
-        Puzzle p = intent.getParcelableExtra("sudokuParcel");
-        activePuzzle = new SudokuPuzzle(p);
+        selectedPuzzle = intent.getParcelableExtra("sudokuParcel");
+
         sds = new SudokuDigitSelector(this);
-        sg = new SudokuGrid(this, sds, activePuzzle);
+        sg = new SudokuGrid(this);
 
         //Ids for grid and selector
         sg.setId(View.generateViewId());
@@ -86,33 +88,46 @@ public class SudokuActivity extends AppCompatActivity {
 
         cs.applyTo(screen);
 
-        sController = new SudokuController(sg, activePuzzle, sds);
-
+        sController = new SudokuController(sg, new SudokuPuzzle(selectedPuzzle), sds);
 
     }
-
-
-    public void resetBoard(View v) {
-        sg.setSudoku(sg.getSudoku());
-    }
-
-
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-//        sController.handleTouchEvent(event);
-        return true;
-    }
-
-    public void getRandomBoard(View v) {
-        //sg.setSudoku(new SudokuPuzzle(gt.getRandom()));
-    }
-
-    //TODO: save the chosen model, original, and save active model, current. No need to update the model with origs.
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void processFinish(final List<Puzzle> dbpuzzles) {
+
+        Random rand = new Random();
+        int len = dbpuzzles.size();
+        int idx = rand.nextInt(len);
+        selectedPuzzle = dbpuzzles.get(idx);
+        sController.setSudoku(new SudokuPuzzle(selectedPuzzle));
+        sdb.close();
+
+    }
+
+    public void resetBoard(View v) {
+        sController.setSudoku(new SudokuPuzzle(selectedPuzzle));
+    }
 
 
+    public void getRandomBoard(View v) {
+
+        //Build the db
+        sdb = Room.databaseBuilder(getApplicationContext(),
+                Sdb.class, "sudokudb").build();
+
+        gt = new AccessDBTask(sdb, this);
+        gt.execute();
+
+    }
+
+
+    public void toggleGridFirst(View v) {
+        sController.toggleGridFirst();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
 }
