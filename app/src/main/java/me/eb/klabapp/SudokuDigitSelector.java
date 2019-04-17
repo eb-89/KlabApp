@@ -16,9 +16,7 @@ import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Erik on 2019-01-03.
- */
+
 
 public class SudokuDigitSelector extends SurfaceView {
 

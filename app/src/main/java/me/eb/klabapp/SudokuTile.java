@@ -9,9 +9,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
-/**
- * Created by Erik on 2017-09-20.
- */
 
 public class SudokuTile  {
 
