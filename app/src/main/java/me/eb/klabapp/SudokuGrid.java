@@ -1,5 +1,7 @@
 package me.eb.klabapp;
 
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,9 +10,12 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.graphics.Color.rgb;
 
 
 public class SudokuGrid extends SurfaceView {
@@ -47,6 +52,7 @@ public class SudokuGrid extends SurfaceView {
     public void setNewSudoku(SudokuPuzzle p) {
         currentPuzzle = p;
         tiles = createTiles(currentPuzzle);
+        resetHighlight();
     }
 
     public SudokuDigit getSudokuDigit(int x, int y) {
@@ -60,18 +66,78 @@ public class SudokuGrid extends SurfaceView {
         return out;
     }
 
-    public void setHighlight(SudokuDigit s, boolean b) {
+    public void animateHighlight(SudokuDigit s) {
 
-        resetHighlight();
+        final int x = s.x;
+        final int y = s.y;
+        ValueAnimator animation =  ValueAnimator.ofInt(0,100);
+        animation.setDuration(200);
 
+        animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator updatedAnimation) {
+                int animatedValue = (int)updatedAnimation.getAnimatedValue();
+                tiles.get(9*x + y).setColor(Color.rgb(255,255-animatedValue,255) );
+                invalidate();
+            }
+        });
+        animation.start();
+
+    }
+
+    //blinks
+    public void blink(List<SudokuDigit> list) {
+
+        final List<SudokuDigit> ct = list;
+
+        ValueAnimator animforward =  ValueAnimator.ofInt(0,255);
+        animforward.setRepeatCount(1);
+        animforward.setDuration(200);
+
+        animforward.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator updatedAnimation) {
+                int animatedValue = (int)updatedAnimation.getAnimatedValue();
+                for (SudokuDigit s : ct) {
+                    SudokuTile tile = tiles.get(s.x*9 + s.y);
+                    int ci = tile.getColor();
+                    int cr = Color.red(ci);
+                    int cg = Color.green(ci);
+                    int cb = Color.blue(ci);
+
+                    tile.setColor(Color.argb(animatedValue, cr, cg,cb));
+                }
+                invalidate();
+            }
+        });
+
+        AnimatorSet as = new AnimatorSet();
+        as.play(animforward);
+        as.start();
+    }
+
+    public void setHighlight(SudokuDigit s) {
         SudokuTile t = tiles.get(s.x*9 + s.y);
-        t.setHighlight(b);
+        t.setColor(Color.rgb(255,155,255));
+    }
+
+    //Currently not used at all
+    public void setHighlight(List<SudokuDigit> list) {
+
+        for (SudokuDigit s : list) {
+            SudokuTile t = tiles.get(s.x*9 + s.y);
+            t.setColor(Color.RED);
+
+        }
     }
 
     public void resetHighlight() {
         for (SudokuTile t : tiles) {
             if (currentPuzzle.isChangeable(t.getDigit())) {
-                t.setHighlight(false);
+                t.setColor(Color.WHITE);
+//                t.setHighlight(false);
+            } else {
+                t.setColor(Color.BLUE);
             }
         }
     }
@@ -95,6 +161,7 @@ public class SudokuGrid extends SurfaceView {
                 setTileDimensions();
                 images = loadImages();
                 tiles = createTiles(currentPuzzle); //calls getHeight() and with() of this view
+                resetHighlight();
 
             }
 
@@ -165,10 +232,6 @@ public class SudokuGrid extends SurfaceView {
                 //If the digit is 0, the tile is open
                 SudokuDigit d = puzzle.getDigit(i,j);
                 SudokuTile s = new SudokuTile(d, rect, images.get(d.val));
-                if (!currentPuzzle.isChangeable(d)) {
-                    s.setColor(Color.rgb(23, 86, 14));
-                }
-
                 list.add(s);
             }
         }

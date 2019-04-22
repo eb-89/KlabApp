@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SudokuController {
 
     private SudokuGrid view;
@@ -42,7 +45,8 @@ public class SudokuController {
 
                 if (gridFirst) {
                     if (gridSelectedDigit != null && model.isChangeable(gridSelectedDigit) ) {
-                        view.setHighlight(gridSelectedDigit, true);
+                        view.resetHighlight();
+                        view.animateHighlight(gridSelectedDigit);
                     }
                 } else if (gridSelectedDigit!=null && selectorSelectedDigit != null  && model.isChangeable(gridSelectedDigit)) {
                     model.setDigit(gridSelectedDigit.x, gridSelectedDigit.y, selectorSelectedDigit.val);
@@ -67,9 +71,18 @@ public class SudokuController {
 
                 if (gridFirst) {
                     if (selectorSelectedDigit != null && gridSelectedDigit != null && model.isChangeable(gridSelectedDigit)) {
-                        model.setDigit(gridSelectedDigit.x, gridSelectedDigit.y, selectorSelectedDigit.val);
-                        view.setHighlight(gridSelectedDigit, false);
-                        gridSelectedDigit = null;
+
+                        view.resetHighlight();
+                        view.setHighlight(gridSelectedDigit);
+
+                        List<SudokuDigit> conflicts = model.getConflictsOf(gridSelectedDigit.x, gridSelectedDigit.y, selectorSelectedDigit.val );
+//                        Toast.makeText(view.getContext(), "conf size: " + conflicts.size() , Toast.LENGTH_SHORT).show();
+                        if (conflicts.size() > 0) {
+//                            view.setHighlight(conflicts);
+                            view.blink(conflicts);
+                        } else {
+                            model.setDigit(gridSelectedDigit.x, gridSelectedDigit.y, selectorSelectedDigit.val);
+                        }
                     }
                 } else if (selectorSelectedDigit!=null) {
                     selector.setHighlight(selectorSelectedDigit,true );
@@ -90,6 +103,8 @@ public class SudokuController {
         model = p;
         view.setNewSudoku(model);
         view.updateGrid();
+        gridSelectedDigit = null;
+        selectorSelectedDigit = null;
         selector.updateSelector();
     }
 

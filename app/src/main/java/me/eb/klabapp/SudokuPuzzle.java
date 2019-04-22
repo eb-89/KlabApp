@@ -9,40 +9,94 @@ import me.eb.klabapp.roombase.Puzzle;
 public class SudokuPuzzle {
 
 
-    private List<SudokuDigit> digits;
-    private List<Boolean> changeableMask;
+    private SudokuDigit[][] digits ;
+    private Boolean[][] changeableMask;
+
 
     public SudokuPuzzle(Puzzle p) {
         char[] chars = p.data.toCharArray();
-        digits = new ArrayList<>();
-        changeableMask = new ArrayList<>();
 
-        for (int i = 0; i<81; i++ ) {
-            int val =  Character.getNumericValue(chars[i]);
-            digits.add(new SudokuDigit(i/9,i%9, val));
+        digits = new SudokuDigit[9][9];
+        changeableMask = new Boolean[9][9];
 
-            if (val == 0) {
-                changeableMask.add(true);
-            } else {
-                changeableMask.add(false);
+        for (int i= 0; i< 9; i++) {
+            for (int j=0; j<9; j++) {
+                int val =  Character.getNumericValue(chars[i*9 +j]);
+                digits[i][j] = new SudokuDigit(i,j, val);
+                changeableMask[i][j] = val == 0;
+
             }
         }
+
     }
 
     public SudokuDigit getDigit(int x, int y) {
-        return digits.get(x*9 + y) ;
+        return digits[x][y];
     }
 
     public void setDigit(int x, int y, int val) {
-        digits.set(x*9 + y, new SudokuDigit(x,y, val));
+        digits[x][y] = new SudokuDigit(x,y, val);
     }
     public void setDigit(SudokuDigit s) {
-        digits.set(s.x*9 + s.y, s);
+        digits[s.x][s.y] = s;
     }
 
     public boolean isChangeable(SudokuDigit s) {
-        return changeableMask.get(s.x*9 + s.y);
+        return changeableMask[s.x][s.y];
     }
 
+    public List<SudokuDigit> getConflictsOf(int x, int y, int val) {
 
+
+
+        List<SudokuDigit> out = new ArrayList<>();
+
+        if (val == 0) {
+            return out;
+        }
+        if (val == digits[x][y].val) {
+            return out;
+        }
+
+        for (int i=0; i<9; i++) {
+            if ( val == digits[x][i].val ) {
+                if (!out.contains(digits[x][i])) {
+                    out.add(digits[x][i]);
+                }
+            }
+        }
+        for (int i=0; i<9; i++) {
+            if ( val == digits[i][y].val ) {
+                if (!out.contains(digits[i][y])) {
+                    out.add(digits[i][y]);
+                }
+
+            }
+        }
+
+
+        for (int i = 0; i<3; i++) {
+            for (int j=0; j<3;j++) {
+                int xx = (x/3)*3 + i;
+                int yy = (y/3)*3 + j;
+
+                if (digits[xx][yy].val == val ) {
+                    if (!out.contains(digits[xx][yy])) {
+                        out.add(digits[xx][yy]);
+                    }
+                }
+            }
+        }
+
+        return out;
+    }
+
+    /* Write the following:::   for each row for each i : get i on 9x+i
+    *
+    *                           for each column (for each i) in (get 9i+ y)
+    *
+    *                           for each i = x / 3
+    *                            for each j = y/3
+    *                             get (3*i
+    * */
 }
